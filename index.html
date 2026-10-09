@@ -1383,6 +1383,113 @@
     flex-shrink:0;
   }
 
+  /* ---------- Movimientos importados (Lemon) por revisar ---------- */
+  .tag-review{
+    background:var(--violet-soft) !important;
+    color:var(--violet-dark) !important;
+  }
+  body.dark .tag-review{ color:#B9B0FF !important; }
+  .review-banner{
+    display:none;
+    align-items:center;
+    gap:12px;
+    background:var(--violet-soft);
+    color:var(--ink);
+    border-radius:var(--radius-md);
+    padding:12px 16px;
+    margin:0 0 20px;
+    font-size:13px;
+    font-weight:600;
+    box-shadow:var(--shadow-sm);
+  }
+  .review-banner.open{ display:flex; }
+  .review-banner .review-icon{ display:flex; align-items:center; flex-shrink:0; color:var(--violet-dark); }
+  body.dark .review-banner .review-icon{ color:#B9B0FF; }
+  .review-banner .review-text{ flex:1; line-height:1.4; }
+  .review-banner button{
+    background:linear-gradient(135deg, var(--violet), var(--violet-dark));
+    color:#fff;
+    border:none;
+    padding:8px 16px;
+    border-radius:999px;
+    font-size:12.5px;
+    font-weight:700;
+    cursor:pointer;
+    flex-shrink:0;
+    white-space:nowrap;
+  }
+  .review-section-title{
+    font-size:12px;
+    font-weight:700;
+    color:var(--ink-faint);
+    margin:4px 0 10px;
+  }
+  .review-section-title:not(:first-child){ margin-top:20px; }
+  .review-item{
+    background:var(--surface-2);
+    border-radius:var(--radius-md);
+    padding:12px;
+    margin-bottom:10px;
+  }
+  .review-item-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:10px;
+    margin-bottom:10px;
+  }
+  .review-item-desc{ font-size:13.5px; font-weight:600; min-width:0; overflow-wrap:anywhere; }
+  .review-item-date{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    color:var(--ink-faint);
+    font-weight:600;
+    margin-top:3px;
+  }
+  .review-item-amount{
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:700;
+    font-size:14px;
+    white-space:nowrap;
+  }
+  .review-item-amount.pos{ color:var(--teal-dark); }
+  .review-item-amount.neg{ color:var(--coral-dark); }
+  .review-item-actions{ display:flex; gap:8px; align-items:center; }
+  .review-item-actions select{
+    flex:1;
+    min-width:0;
+    padding:9px 10px;
+    border:1.5px solid var(--line);
+    border-radius:var(--radius-sm);
+    background:var(--surface);
+    color:var(--ink);
+    font-family:'Inter', sans-serif;
+    font-size:13px;
+  }
+  .review-item-raw{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--ink-soft);
+    white-space:pre-wrap;
+    overflow-wrap:anywhere;
+    margin-bottom:8px;
+  }
+  .review-item-reason{ font-size:12px; color:var(--coral-dark); font-weight:600; margin-bottom:8px; }
+  .cde-btn.review-del:hover{ border-color:var(--coral); color:var(--coral-dark); background:var(--coral-soft); }
+  .review-confirm-all{
+    width:100%;
+    margin-top:4px;
+    padding:11px;
+    border:none;
+    border-radius:999px;
+    background:linear-gradient(135deg, var(--teal), var(--teal-dark));
+    color:#fff;
+    font-family:'Inter', sans-serif;
+    font-weight:700;
+    font-size:13px;
+    cursor:pointer;
+  }
+
   /* ---------- Etiqueta de gasto recurrente ---------- */
   .tag-recurring{
     background:var(--surface-2) !important;
@@ -1605,6 +1712,12 @@
     <button type="button" id="syncRetryBtn">Reintentar</button>
   </div>
 
+  <div class="review-banner" id="reviewBanner">
+    <span class="review-icon"><svg viewBox="0 0 24 24" class="icon"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg></span>
+    <span class="review-text" id="reviewBannerText"></span>
+    <button type="button" id="openReviewBtn">Revisar</button>
+  </div>
+
   <div class="view-tabs">
     <button type="button" class="active" id="tabMain" data-view="main">Principal</button>
     <button type="button" id="tabAnnual" data-view="annual">Anual</button>
@@ -1803,6 +1916,16 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="reviewModalOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Revisar movimientos importados</h2>
+      <button type="button" id="closeReviewModal" aria-label="Cerrar"><svg viewBox="0 0 24 24" class="icon"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+    </div>
+    <div id="reviewList"></div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="confirmModalOverlay">
   <div class="modal" style="max-width:380px;">
     <div class="modal-header">
@@ -1848,7 +1971,8 @@
     chevronRight: '<svg viewBox="0 0 24 24" class="icon"><polyline points="9 18 15 12 9 6"></polyline></svg>',
     repeat: '<svg viewBox="0 0 24 24" class="icon"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>',
     search: '<svg viewBox="0 0 24 24" class="icon"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>',
-    trendingUp: '<svg viewBox="0 0 24 24" class="icon"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>'
+    trendingUp: '<svg viewBox="0 0 24 24" class="icon"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>',
+    inbox: '<svg viewBox="0 0 24 24" class="icon"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg>'
   };
   function iconHtml(name, extraClass){
     const svg = ICONS[name] || '';
@@ -1881,6 +2005,8 @@
   let ledgerSearchText = '';
   let ledgerCategoryFilterValue = '';
   let ledgerStatusFilterValue = '';
+  let inboxRaw = [];          // notificaciones que el endpoint no pudo interpretar (tabla inbox_raw)
+  let lastCloudRefresh = 0;   // para no refrescar desde la nube más de una vez cada 20 s
 
   const monthKey = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
   const fmtMoney = (n) => '$' + Math.round(n).toLocaleString('es-AR');
@@ -2199,7 +2325,10 @@
       date: entry.date,
       recurrence_end: entry.recurrenceEnd || null,
       paid_months: entry.type === 'gasto' ? (entry.paidMonths || []) : [],
-      skipped_months: entry.type === 'gasto' ? (entry.skippedMonths || []) : []
+      skipped_months: entry.type === 'gasto' ? (entry.skippedMonths || []) : [],
+      source: entry.source || null,
+      external_id: entry.externalId || null,
+      pending_review: !!entry.pendingReview
     };
   }
   function rowToEntry(row){
@@ -2215,6 +2344,9 @@
     if(row.recurrence_end) e.recurrenceEnd = row.recurrence_end;
     e.paidMonths = Array.isArray(row.paid_months) ? row.paid_months : [];
     e.skippedMonths = Array.isArray(row.skipped_months) ? row.skipped_months : [];
+    if(row.source) e.source = row.source;
+    if(row.external_id) e.externalId = row.external_id;
+    if(row.pending_review) e.pendingReview = true;
     return e;
   }
   function categoryToRow(cat, type){
@@ -2241,7 +2373,15 @@
     const budgets = {};
     (budgetsRes.data || []).forEach(r => { budgets[r.month_key] = Number(r.amount); });
     const entries = (entriesRes.data || []).map(rowToEntry);
-    return { ok:true, entries, categories, budgets };
+    // El buzón de notificaciones sin interpretar es opcional: si la tabla todavía
+    // no existe o falla, no se corta la sincronización principal.
+    let inbox = [];
+    try{
+      const inboxRes = await sb.from('inbox_raw').select('*').eq('user_id', currentUser.id).order('created_at', { ascending:false }).limit(50);
+      if(inboxRes.error) console.warn('No se pudo leer inbox_raw', inboxRes.error);
+      else inbox = inboxRes.data || [];
+    }catch(err){ console.warn('No se pudo leer inbox_raw', err); }
+    return { ok:true, entries, categories, budgets, inbox };
   }
 
   // Migración de una sola vez desde el formato anterior (blob único en
@@ -2400,6 +2540,8 @@
     // 2) Tablas normalizadas en la nube (fuente de verdad si la lectura funciona)
     const result = await fetchCloudState();
     if(result.ok){
+      inboxRaw = result.inbox || [];
+      lastCloudRefresh = Date.now();
       const noEntries = result.entries.length === 0;
       const noCats = result.categories.gasto.length === 0 && result.categories.ingreso.length === 0;
       if(noEntries && noCats){
@@ -2720,6 +2862,7 @@
           entry.date = el('date').value || new Date().toISOString().slice(0,10);
           entry.paidMonths = buildPaidMonths(entry, entry.paidMonths, paidChecked);
           entry.skippedMonths = entry.subtype === 'fijo' ? (entry.skippedMonths || []).filter(m => m >= entry.date.slice(0,7)) : [];
+          entry.pendingReview = false; // si lo editás, se da por revisado
           updatedEntry = entry;
         }
       }
@@ -3171,6 +3314,7 @@
               ? ` <span class="cat-tag tag-paid">${iconHtml('check','icon-xs')} pagado</span>`
               : ` <span class="cat-tag tag-planned">${iconHtml('clock','icon-xs')} planificado</span>`)
           : '';
+        const reviewTag = en.pendingReview ? ` <span class="cat-tag tag-review" title="Importado automáticamente desde Lemon; falta que lo revises">${iconHtml('inbox','icon-xs')} por revisar</span>` : '';
         const payBtnHtml = en.type === 'gasto'
           ? `<button class="pay-btn ${paid ? 'paid' : ''}" title="${paid ? 'Marcar como planificado' : 'Marcar como pagado'}" data-id="${en.id}" data-month="${en.occurrenceMonth}">${iconHtml('check','icon-sm')}</button>`
           : '<span class="pay-spacer"></span>';
@@ -3182,7 +3326,7 @@
           : `<button class="edit-btn" title="Editar" data-id="${en.id}" data-virtual="0" data-month="${en.occurrenceMonth}">${iconHtml('edit','icon-sm')}</button>`;
         row.innerHTML = `
           <div class="date">${dateStr}</div>
-          <div class="desc">${en.desc || (en.type === 'ingreso' ? 'Ingreso' : 'Gasto')}<br><span class="cat-tag" style="background:${tagColor}22; color:${tagColor}">${en.category}</span>${subMeta ? ` <span class="cat-tag" style="background:${subMeta.color}22; color:${subMeta.color}">${subMeta.label}</span>` : ''}${statusTag}${recurringTag}</div>
+          <div class="desc">${en.desc || (en.type === 'ingreso' ? 'Ingreso' : 'Gasto')}<br><span class="cat-tag" style="background:${tagColor}22; color:${tagColor}">${en.category}</span>${subMeta ? ` <span class="cat-tag" style="background:${subMeta.color}22; color:${subMeta.color}">${subMeta.label}</span>` : ''}${statusTag}${recurringTag}${reviewTag}</div>
           <div class="amount ${cls}">${sign} ${fmtMoney(en.amount)}</div>
           <div class="entry-actions">
             ${payBtnHtml}
@@ -3208,6 +3352,8 @@
     }
 
     refreshDetailModalIfOpen(monthEntries);
+    updateReviewBanner();
+    refreshReviewModalIfOpen();
     renderTrendChart();
   }
 
@@ -3623,6 +3769,210 @@
   el('closeCatDetailModal').addEventListener('click', closeCategoryDetail);
   el('catDetailModalOverlay').addEventListener('click', function(e){
     if(e.target === el('catDetailModalOverlay')) closeCategoryDetail();
+  });
+
+  // ---------- Movimientos importados desde Lemon: revisión ----------
+  // El endpoint (Supabase Edge Function) inserta cada notificación interpretada
+  // como un movimiento Variable con pending_review = true. Acá se muestran para
+  // que elijas la categoría y los confirmes (o los borres). Lo que el endpoint
+  // no pudo interpretar queda en inbox_raw y se lista aparte para descartarlo.
+  function getPendingEntries(){
+    return state.entries.filter(e => e.pendingReview).sort((a,b) => b.date.localeCompare(a.date));
+  }
+
+  function updateReviewBanner(){
+    const banner = el('reviewBanner');
+    if(!banner) return;
+    const pend = getPendingEntries().length;
+    const raw = inboxRaw.length;
+    if(pend === 0 && raw === 0){
+      banner.classList.remove('open');
+      return;
+    }
+    const parts = [];
+    if(pend > 0) parts.push(`${pend} movimiento(s) importado(s) de Lemon por revisar`);
+    if(raw > 0) parts.push(`${raw} notificación(es) sin interpretar`);
+    el('reviewBannerText').textContent = parts.join(' · ');
+    banner.classList.add('open');
+  }
+
+  function renderReviewModal(){
+    const listEl = el('reviewList');
+    const pend = getPendingEntries();
+    let html = '';
+    // Conserva las categorías ya elegidas en los selects aunque se re-dibuje la lista.
+    const prevSel = {};
+    listEl.querySelectorAll('select[data-id]').forEach(sl => { prevSel[sl.dataset.id] = sl.value; });
+
+    if(pend.length === 0 && inboxRaw.length === 0){
+      listEl.innerHTML = '<div class="cat-detail-empty">No hay nada por revisar.</div>';
+      return;
+    }
+
+    if(pend.length > 0){
+      html += '<p class="review-section-title">Movimientos por confirmar</p>';
+      html += pend.map(en => {
+        const d = new Date(en.date + 'T00:00:00');
+        const dateStr = d.toLocaleDateString('es-AR', {day:'2-digit', month:'short', year:'numeric'});
+        const sign = en.type === 'ingreso' ? '+' : '−';
+        const cls = en.type === 'ingreso' ? 'pos' : 'neg';
+        const cats = (state.categories[en.type] || []).map(c => c.name);
+        if(!cats.includes(en.category)) cats.unshift(en.category);
+        const chosen = (prevSel[en.id] && cats.includes(prevSel[en.id])) ? prevSel[en.id] : en.category;
+        const options = cats.map(n => `<option value="${escapeHtml(n)}"${n === chosen ? ' selected' : ''}>${escapeHtml(n)}</option>`).join('');
+        return `
+          <div class="review-item">
+            <div class="review-item-top">
+              <div>
+                <div class="review-item-desc">${escapeHtml(en.desc || (en.type === 'ingreso' ? 'Ingreso' : 'Gasto'))}</div>
+                <div class="review-item-date">${dateStr}</div>
+              </div>
+              <span class="review-item-amount ${cls}">${sign} ${fmtMoney(en.amount)}</span>
+            </div>
+            <div class="review-item-actions">
+              <select data-id="${en.id}" aria-label="Categoría">${options}</select>
+              <button type="button" class="cde-btn cde-pay" title="Confirmar" data-action="confirm" data-id="${en.id}">${iconHtml('check','icon-sm')}</button>
+              <button type="button" class="cde-btn review-del" title="Eliminar" data-action="delete" data-id="${en.id}">${iconHtml('x','icon-sm')}</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+      if(pend.length > 1){
+        html += '<button type="button" class="review-confirm-all" data-action="confirm-all">Confirmar todos</button>';
+      }
+    }
+
+    if(inboxRaw.length > 0){
+      html += '<p class="review-section-title">Notificaciones sin interpretar</p>';
+      html += inboxRaw.map(r => {
+        const when = r.created_at ? new Date(r.created_at).toLocaleString('es-AR', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'}) : '';
+        const raw = [r.title, r.body].filter(Boolean).join('\n');
+        return `
+          <div class="review-item">
+            ${r.reason ? `<div class="review-item-reason">${escapeHtml(r.reason)}</div>` : ''}
+            <div class="review-item-raw">${escapeHtml(raw)}</div>
+            <div class="review-item-actions">
+              <span class="review-item-date" style="flex:1; margin:0;">${escapeHtml(when)}</span>
+              <button type="button" class="cde-btn review-del" title="Descartar" data-action="discard" data-id="${escapeHtml(String(r.id))}">${iconHtml('x','icon-sm')}</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    listEl.innerHTML = html;
+  }
+
+  function openReviewModal(){
+    renderReviewModal();
+    el('reviewModalOverlay').classList.add('open');
+  }
+  function closeReviewModal(){
+    el('reviewModalOverlay').classList.remove('open');
+  }
+  function refreshReviewModalIfOpen(){
+    if(el('reviewModalOverlay').classList.contains('open')) renderReviewModal();
+  }
+
+  function selectedCategoryFor(id){
+    const sel = el('reviewList').querySelector(`select[data-id="${id}"]`);
+    return sel && sel.value ? sel.value : null;
+  }
+
+  async function confirmPendingEntry(id){
+    const entry = state.entries.find(en => en.id === id);
+    if(!entry) return;
+    const cat = selectedCategoryFor(id);
+    if(cat) entry.category = cat;
+    entry.pendingReview = false;
+    cacheLocally();
+    render();
+    showToast('Movimiento confirmado');
+    await dbUpdateEntry(entry);
+  }
+
+  async function confirmAllPending(){
+    const pend = getPendingEntries();
+    if(pend.length === 0) return;
+    pend.forEach(entry => {
+      const cat = selectedCategoryFor(entry.id);
+      if(cat) entry.category = cat;
+      entry.pendingReview = false;
+    });
+    cacheLocally();
+    render();
+    showToast(`${pend.length} movimiento(s) confirmado(s)`);
+    for(const entry of pend){
+      await dbUpdateEntry(entry);
+    }
+  }
+
+  async function deletePendingEntry(id){
+    const entry = state.entries.find(en => en.id === id);
+    if(!entry) return;
+    const ok = await showConfirmModal({
+      title: 'Eliminar movimiento importado',
+      message: `Se va a eliminar "${entry.desc || entry.category}" por ${fmtMoney(entry.amount)}. ¿Continuar?`,
+      confirmLabel: 'Eliminar',
+      danger: true
+    });
+    if(!ok) return;
+    state.entries = state.entries.filter(en => en.id !== id);
+    if(editingEntryId === id) cancelEditEntry();
+    cacheLocally();
+    render();
+    showToast('Movimiento eliminado');
+    await dbDeleteEntry(id);
+  }
+
+  async function discardInboxItem(id){
+    inboxRaw = inboxRaw.filter(r => String(r.id) !== String(id));
+    render();
+    const { error } = await sb.from('inbox_raw').delete().eq('id', id).eq('user_id', currentUser.id);
+    if(error){
+      console.error('Error al descartar notificación', error);
+      showSyncError('No se pudo descartar la notificación en la nube.', () => discardInboxItem(id));
+    }
+  }
+
+  el('openReviewBtn').addEventListener('click', openReviewModal);
+  el('closeReviewModal').addEventListener('click', closeReviewModal);
+  el('reviewModalOverlay').addEventListener('click', function(e){
+    if(e.target === el('reviewModalOverlay')) closeReviewModal();
+  });
+  el('reviewList').addEventListener('click', async function(e){
+    const btn = e.target.closest('button[data-action]');
+    if(!btn) return;
+    const action = btn.dataset.action;
+    if(action === 'confirm') await confirmPendingEntry(btn.dataset.id);
+    else if(action === 'confirm-all') await confirmAllPending();
+    else if(action === 'delete') await deletePendingEntry(btn.dataset.id);
+    else if(action === 'discard') await discardInboxItem(btn.dataset.id);
+  });
+
+  // Los movimientos llegan desde el celular mientras la app puede estar abierta:
+  // al volver a la pestaña/app se traen del servidor los que todavía no están
+  // acá. Es sólo aditivo (no pisa cambios locales ni borra nada).
+  async function refreshFromCloud(){
+    if(!currentUser || editingEntryId) return;
+    if(navigator.onLine === false) return;
+    if(el('syncErrorBanner').classList.contains('open')) return;
+    if(Date.now() - lastCloudRefresh < 20000) return;
+    lastCloudRefresh = Date.now();
+    const result = await fetchCloudState();
+    if(!result.ok) return;
+    const known = new Set(state.entries.map(en => en.id));
+    const fresh = result.entries.filter(en => !known.has(en.id));
+    inboxRaw = result.inbox || [];
+    if(fresh.length > 0){
+      fresh.forEach(en => state.entries.push(en));
+      cacheLocally();
+      showToast(`${fresh.length} movimiento(s) nuevo(s) recibido(s)`);
+    }
+    render();
+  }
+  document.addEventListener('visibilitychange', function(){
+    if(document.visibilityState === 'visible') refreshFromCloud();
   });
 
   // ---------- ABM de categorías ----------
